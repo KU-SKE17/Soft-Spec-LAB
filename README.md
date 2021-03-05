@@ -5,8 +5,9 @@
 1. [Basic](#basic)
 2. [Database](#database)
 3. [Console](#console)
-4. [Authentication](#authentication)
-5. [Testing](#testing)
+4. [Model](#model)
+5. [Authentication](#authentication)
+6. [Testing](#testing)
 
 ## Basic
 
