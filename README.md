@@ -64,13 +64,45 @@ Article.all
 a.attribute
 ```
 
-<% flash[:error]&.join(', ') %>
-
-`&` = check ว่ามี errorไม
-
 ### use rbenv
 
     rbenv init
+
+## Model
+
+```ruby
+class Article < ApplicationRecord
+
+    has_many :comments
+
+    # validates -> rails own check
+    validates :body, length: { minimum: 4 }
+    # validate -> my own check
+    validate :no_bad_words_in_title
+
+    # nomal function
+    def say_hello
+        # return 'Hello'
+        'Hello'
+    end
+
+    # validate function
+    def no_bad_words_in_title
+        if title.downcase.include?('bad')
+            # throw error
+            errors.add(:title, 'cannot contain bad words')
+        end
+    end
+end
+```
+
+### Display error in web page
+
+```slim
+<% flash[:error]&.join(', ') %>
+```
+
+`&` = check ว่ามี errorไม
 
 ## Authentication
 
