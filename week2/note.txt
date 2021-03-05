@@ -1,0 +1,187 @@
+in Ruby
+
+>>> run
+ruby FILENAME.rb
+or
+irb         'irb' -> shell
+
+>>> comment
+# oneline comment
+or
+=begin
+line 1
+line 2
+line 3
+=end
+
+>>> to_
+.to_s       to string
+.to_i       to integer
+.to_a       to array
+(1..10).to_a    // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+>>> string format
+"some text #{ CODE }" -> string(with code inside) 
+≠ 'some text #{ CODE }' -> normal string
+
+>>> formal -> use snake case (ruby_is_fun)
+
+>>> a = b = 1
+a = b = 1
+b = 1
+if b changed, a won't change 
+
+>>> string ใช้แล้ว ใช้เลย
+'a'.object_id == 'a'.object_id -> false
+but
+constant have same object_id
+a.object_id == a.object_id -> true
+
+
+>>> array -> totally same as 'list'
+[1, 'b', 3]
+[1, 2, 3, 4, 5]
+
+>>> index
+a = [1, 2, 3, 4, 5]
+a[3]
+a.index(5)
+
+>>> range
+a[1,4]
+a[1..4]
+a[1..4]
+
+>>> delete
+a.delete(3)     del all 3
+a.deleted
+a.pop()         del last
+
+(***)
+>>> hash -> totally same as 'dictionary'
+months = {"1" => "January", "2" => "February"}
+or
+months = {"1": "January", "2": "February"}
+months.keys     -> ["1", "2"]
+
+>>> each
+a.each { |NAME| CODE for NAME }
+or
+a.each do |NAME, INDEX|         // no need index
+    CODE for NAME 1
+    CODE for NAME 2
+end
+
+>>> times
+100.times -> [0..99]
+100.times.each_with_index do |NAME, INDEX|
+    CODE for NAME 1
+    CODE for NAME 2
+end
+
+>>> loop (rarely used)
+count = 0
+loop do
+    ...
+    count += 2
+    ...
+end
+
+>>> select
+a.select { |NAME| CONDITION }
+CONDITION => NAME % 2 == 0
+
+dict.select { |KEY, VALUE| CONDITION }
+
+>>> find -> return only first one
+a.find { |NAME| CONDITION }
+
+>>> map
+a.map { |NAME| CODE to edit each element}
+CODE => NAME += 3
+
+>>> one line if-statement
+condition ? if_true : if_false
+
+>>> function
+1 + 2 is function (1.class = Integer)
+&: METHOD_NAME
+
+// define
+def NAME(ATTR)      if no any ATTR -> don't write (ATTR)
+    CODE    // don't to return 
+            // OR use return if want to return & out early
+end
+
+// call
+NAME(ATTR)
+
+// function with ATTR as int or array
+ex.
+    def ,,,
+
+>>> class
+// define
+class Person
+
+    // Ruby way
+    attr_reader :name
+    attr_writer :name
+    or
+    attr_accessor :name, :age
+
+    def initialize(name, age)
+        @name = name    @ (-> 'this' in java)
+        @age = age
+    end
+
+    // Non ruby way
+    def get_name
+        @name
+    end
+
+    // Non ruby way
+    def set_name(name)
+        @name = name
+    end
+
+    // private method
+    def prv_NAME
+        CODE
+    end
+
+end
+
+bob = Person.new("Bob", 18)
+
+bob.name = "New Bob"
+// bob.set_name("New Bob")
+puts bob.name
+// puts bob.get_name
+
+bob.prv_NAME          -> error
+bob.send(:prv_NAME)   -> work!
+
+>>> module
+module NAME
+    def ...
+    end
+end
+-> can't call till
+add 'require FILENAME.rb' to file
+and 'include' to class      // include might overwrite your method!
+// call CLASS.func_name_in_modu
+
+>>> try-catch
+begin                // ไม่มีก้ได้ แต่codeจะกาก!
+    CODE to try
+rescue ERROR => e    // no really need ERROR
+    CODE to do after error
+ensure               // no need
+    CODE to do after try (when didn't error)
+
+>>> rubocop
+run rubocop FILENAME.rb
+to check file format & style
+
+>>> gem env
