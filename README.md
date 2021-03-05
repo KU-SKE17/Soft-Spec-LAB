@@ -166,7 +166,7 @@ Run all spec files
 
 ### Test File
 
-In
+admin_spec.rb
 
 ```ruby
 # describe -> method name
