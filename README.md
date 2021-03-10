@@ -3,11 +3,12 @@
 ## Table of Contents
 
 1. [Basic](#basic)
-2. [Database](#database)
-3. [Console](#console)
-4. [Model](#model)
-5. [Authentication](#authentication)
-6. [Testing](#testing)
+2. [Routes](#routes)
+3. [Database](#database)
+4. [Console](#console)
+5. [Model](#model)
+6. [Authentication](#authentication)
+7. [Testing](#testing)
 
 ## Basic
 
@@ -29,6 +30,23 @@
 
 note. `link` use in `slim` = `###_path` [ดูแล้วเติม_path]
 
+## Routes
+
+config/routes.rb
+
+```ruby
+Rails.application.routes.draw do
+    # home page
+    root 'articles#index'
+    # others page
+    get "/articles", to: "articles#index"
+end
+```
+
+### generate controller
+
+    bin/rails generate controller Articles index
+
 ## Database
 
 ### create file for database name ‘…\_create_article’
@@ -39,7 +57,8 @@ note. `link` use in `slim` = `###_path` [ดูแล้วเติม_path]
 
     rails db:migrate
 
-in models
+in app/models
+
 Create class Article < ApplicationRecord
 
 ## Console
@@ -78,7 +97,7 @@ class Article < ApplicationRecord
 
     # validates -> rails own check
     validates :body, length: { minimum: 4 }
-    # validate -> my own check
+    # validate -> your own check
     validate :no_bad_words_in_title
 
     # nomal function
@@ -97,7 +116,11 @@ class Article < ApplicationRecord
 end
 ```
 
-### Display error in web page
+### generate model
+
+    bin/rails generate model Article title:string body:text
+
+### display error on web page
 
 ```slim
 <% flash[:error]&.join(', ') %>
@@ -107,15 +130,15 @@ end
 
 ## Authentication
 
-### Add bunde authentication
+### add bunde authentication
 
     rails generate devise:install
 
-### Generate Admin
+### generate Admin
 
     rails generate devise Admin
 
-### Use Admin
+### use Admin
 
 ApplicationController.rb
 
@@ -139,33 +162,36 @@ div = "#{current_admin.firstname} #{current_admin.lastname}"
 div = link_to 'Logout', destroy_admin_session_path, method: :delete
 ```
 
-note. `method:` ถ้าไม่ใส่ จะเป็น GET เสมอ
+note. ถ้าไม่ใส่ `method:` จะเป็น GET เสมอ
 
 ## Testing
 
-### Add bunde Testing
+### add bunde Testing
 
-    group :development, :test do
-    # For testing
-    gem 'rspec-rails', '~> 4.0.2'
+```
+group :development, :test do
+# For testing
+gem 'rspec-rails', '~> 4.0.2'
+# ...
+```
 
-### Generate spec (testing)
+### generate spec (testing)
 
     rails generate rspec:install
 
-### Create test for a model
+### create test for a model
 
     rails generate rspec:model [MODEL_NAME]
 
 for model `admin` -> `rails g rspec:model admin`
 
-### Run Test
+### run Test
 
 Run all spec files
 
     bundle exec rspec
 
-### Test File
+### test File
 
 admin_spec.rb
 
