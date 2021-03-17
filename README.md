@@ -8,7 +8,9 @@
 4. [Console](#console)
 5. [Model](#model)
 6. [Authentication](#authentication)
-7. [Testing](#testing)
+7. [Testing](#testing-and-debugging)
+8. [UI](#ui)
+9. [Function](#function)
 
 ## Basic
 
@@ -65,7 +67,7 @@ Create class Article < ApplicationRecord
 
 ### run in console
 
-    rails -c
+    rails c
 
 or
 
@@ -164,15 +166,17 @@ div = link_to 'Logout', destroy_admin_session_path, method: :delete
 
 note. ถ้าไม่ใส่ `method:` จะเป็น GET เสมอ
 
-## Testing
+## Testing and Debugging
 
-### add bunde Testing
+### add bundes
 
 ```
 group :development, :test do
-# For testing
-gem 'rspec-rails', '~> 4.0.2'
-# ...
+    # For debugging
+    gem 'pry', '~> 0.13.1'
+    # For testing
+    gem 'rspec-rails', '~> 4.0.2'
+    # ...
 ```
 
 ### generate spec (testing)
@@ -219,3 +223,170 @@ describe "email_cannot_have_bob" do
 end
 
 ```
+
+### debugging
+
+ApplicationController.rb
+
+```ruby
+def index
+        # ...
+        # add
+        binding.pry
+    end
+```
+
+then run server!
+
+note. when load page, the page will freeze and the console log will start the `rails c` at that part.
+
+So you can type `ls` to see currant data or just the `variable name` to see what is it.
+
+## UI
+
+### Bootstrap & FontAwesome (icon)
+
+app/views/layouts/application.html.erb
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <%= csrf_meta_tags %> <%= csp_meta_tag %>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Blog</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <%= csrf_meta_tags %> <%= csp_meta_tag %> <%= stylesheet_link_tag
+        'application', media: 'all', 'data-turbolinks-track': 'reload' %> <%=
+        stylesheet_link_tag
+        'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'
+        %> <%= stylesheet_link_tag
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css'
+        %> <%= javascript_pack_tag 'application', 'data-turbolinks-track':
+        'reload' %>
+      </head>
+
+      <body>
+        <div class="container">
+          <h1 style="color: red;"><%= flash[:error]&.join(',') %></h1>
+          <%= yield %> <%= javascript_include_tag
+          'https://code.jquery.com/jquery-3.2.1.slim.min.js' %> <%=
+          javascript_include_tag
+          'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'
+          %> <%= javascript_include_tag
+          'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'
+          %>
+        </div>
+      </body>
+    </html>
+
+    <%= stylesheet_link_tag 'application', media: 'all',
+    'data-turbolinks-track': 'reload' %> <%= stylesheet_link_tag
+    'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' %>
+    <%= stylesheet_link_tag
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css'
+    %> <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+    %>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 style="color: red;"><%= flash[:error]&.join(',') %></h1>
+      <%= yield %> <%= javascript_include_tag
+      'https://code.jquery.com/jquery-3.2.1.slim.min.js' %> <%=
+      javascript_include_tag
+      'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'
+      %> <%= javascript_include_tag
+      'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' %>
+    </div>
+  </body>
+</html>
+```
+
+index.slim
+
+```slim
+.row
+    .col-6
+        h1 This is articles list
+    .col-6
+        .float-right
+            span = current_admin.email
+            span.ml-3 = "#{current_admin.firstname} #{current_admin.lastname}"
+            span.ml-3 = link_to 'Logout', destroy_admin_session_path, method: :delete
+
+.row
+    .col
+        = form_tag articles_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th ID
+                    th Title
+                    th Body
+                    th No. Comments
+                    th Created at
+                    th Updated at
+                    th Action
+            tbody
+                - @articles.each do |a|
+                    tr.hoverable-row
+                        td = a.id
+                        td.font-weight-bold = a.title
+                        td = a.body
+                        td = a.comments.count
+                        td.font-weight-light = "#{time_ago_in_words(a.created_at)} ago"
+                        td.font-weight-light = "#{time_ago_in_words(a.updated_at)} ago"
+                        td
+                            span
+                                = link_to article_path(a) do
+                                    i.fas.fa-eye
+                            span.ml-3
+                                = link_to edit_article_path(a) do
+                                    i.fas.fa-pen
+                            span.ml-3
+                                = link_to article_path(a), method: :delete, data: { confirm: "Are you sure?" } do
+                                    i.fas.fa-trash
+
+.row
+    .col-6
+        = paginate @articles
+    .col-6
+        .float-right
+            = link_to new_article_path do
+                = button_tag 'Add new Article', class: 'btn btn-primary'
+```
+
+### Kaminari (pagination)
+
+Gemfile
+
+```
+gem 'kaminari'
+```
+
+Terminal
+
+    <!-- check themes -->
+    bin/rails generate kaminari:views THEME
+
+    <!-- choose theme -->
+    bin/rails generate kaminari:views bootstrap4
+
+index.slim
+
+```slim
+= paginate @articles
+```
+
+## Function
+
+#search
