@@ -30,6 +30,8 @@
 
     rails routes
 
+note. rails routes -c `controller_name`
+
 note. `link` use in `slim` = `###_path` [ดูแล้วเติม_path]
 
 ## Routes
@@ -61,7 +63,15 @@ end
 
 in app/models
 
+### drop database
+
+    rails db:drop:_unsafe
+
 Create class Article < ApplicationRecord
+
+### run db/seed.rb
+
+    rails db:seed
 
 ## Console
 
@@ -76,14 +86,18 @@ or
 ```irb
 Article.new
 Article.create(title: “Article B”, body: “Another Article”)
-Article.count
+
+Article.all
+Article.where(title: ’This is ’) # array
+Article.find_by # obj
 Article.first
 Article.second
-…
 Article.last
-Article.where(title: ’This is ’)
-Article.all
+
+Article.count
 a.attribute
+
+Article.all.map(&:save)
 ```
 
 ### use rbenv
@@ -389,4 +403,28 @@ index.slim
 
 ## Function
 
-#search
+### search
+
+index.slim
+
+```slim
+= form_tag root_path, method: :get do
+    = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+```
+
+ApplicationController.rb
+
+```ruby
+def index
+    @search = params[:search]
+    @items = Item.all
+    @items = @items.where("title like ? or description like ?", "%#{@search}%", "%#{@search}%") if @search.present?
+    @items = @items.page(params[:page]).per(5)
+end
+```
+
+## Caching
+
+### open/close caching
+
+    rails dev:cache
