@@ -7,10 +7,12 @@
 3. [Database](#database)
 4. [Console](#console)
 5. [Model](#model)
-6. [Authentication](#authentication)
-7. [Testing](#testing-and-debugging)
-8. [UI](#ui)
-9. [Function](#function)
+6. [Subclass](#subclass)
+7. [Authentication](#authentication)
+8. [Testing](#testing-and-debugging)
+9. [UI](#ui)
+10. [Function](#function)
+11. [Caching](#caching)
 
 ## Basic
 
@@ -67,6 +69,10 @@ in app/models
 
     rails db:drop:_unsafe
 
+### reset database (not update Schema)
+
+    rake db:reset
+
 Create class Article < ApplicationRecord
 
 ### run db/seed.rb
@@ -96,7 +102,11 @@ Article.last
 
 Article.count
 a.attribute
+# print `a` attributes line by line
+pp a
 
+# &: => a func
+# call `func` for every articles
 Article.all.map(&:save)
 ```
 
@@ -105,6 +115,10 @@ Article.all.map(&:save)
     rbenv init
 
 ## Model
+
+### generate model
+
+    bin/rails generate model Article title:string body:text
 
 ```ruby
 class Article < ApplicationRecord
@@ -132,10 +146,6 @@ class Article < ApplicationRecord
 end
 ```
 
-### generate model
-
-    bin/rails generate model Article title:string body:text
-
 ### display error on web page
 
 ```slim
@@ -143,6 +153,99 @@ end
 ```
 
 `&` = check ว่ามี errorไม
+
+## Subclass
+
+### [1-to-many]
+
+if Article has many comments
+
+article.rb
+
+```ruby
+class Article < ApplicationRecord
+
+    has_many :comments, dependent: :destroy
+```
+
+note. `dependent: :destroy` -> when article destroyed, its comments are also destroyed.
+
+comment.rb
+
+```ruby
+class Comment < ApplicationRecord
+
+    belongs_to :article
+```
+
+note. `belongs_to :article` -> Comment, itself can edit the article it belong to. for example function `change_article_title`
+
+comment.rb
+
+```ruby
+class Comment < ApplicationRecord
+
+    belongs_to :article
+    before_destory :change_article_title
+
+    def change_article_title
+        article.title = "#{article.title} X"
+    end
+```
+
+### [many-to-many]
+
+if Category has many articles and Article has many categories
+
+article.rb
+
+```ruby
+class Article < ApplicationRecord
+
+    has_many :article_categories
+    has_many :categories, through: :article_categories
+```
+
+category.rb
+
+```ruby
+class Category < ApplicationRecord
+
+    has_many :article_categories
+    has_many :articles, through: :article_categories
+```
+
+article_category.rb
+
+```ruby
+class ArticleCategory < ApplicationRecord
+
+    belongs_to :article
+    belongs_to :category
+```
+
+note. migrate file of `ArticleCategory` need to follow:
+
+db/migrate/xxxxxxxx_create_article_category.rb
+
+```ruby
+class CreateArticleCategory < ActiveRecord::Migration[6.1]
+
+    def change
+        create_table :article_categories do |t|
+            t.belongs_to :article
+            t.belongs_to :category
+
+            t.timestamps
+        end
+    end
+```
+
+index.slim
+
+```slim
+a.categories.map(&:name)&.join(', ').presence || 'NA'
+```
 
 ## Authentication
 
@@ -425,6 +528,39 @@ end
 
 ## Caching
 
+Gemfile
+
+```
+# page caching
+gem 'actionpack-page_caching'
+# action caching
+gem 'actionpack-action_caching'
+```
+
+ApplicationController.rb
+
+```ruby
+class ArticlesController < ApplicationController
+    # add
+    caches_page :index
+    caches_action :index
+```
+
 ### open/close caching
 
     rails dev:cache
+
+### cache only rows (not the whole page)
+
+index.slim
+
+```slim
+- @articles.each do |a|
+    <!-- add -->
+    - cache a do
+        tr.hoverable-row
+            td = a.id
+            td.font-weight-bold = a.title
+            td = a.body
+            ...
+```
