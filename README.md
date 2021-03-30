@@ -13,6 +13,8 @@
 9. [UI](#ui)
 10. [Function](#function)
 11. [Caching](#caching)
+12. [Enum](#enum)
+13. [CSV](#csv)
 
 ## Basic
 
@@ -108,6 +110,9 @@ pp a
 # &: => a func
 # call `func` for every articles
 Article.all.map(&:save)
+
+# reload console
+reload!
 ```
 
 ### use rbenv
@@ -245,6 +250,28 @@ index.slim
 
 ```slim
 a.categories.map(&:name)&.join(', ').presence || 'NA'
+```
+
+### Category editer (admin)
+
+ApplicationController.rb
+
+```ruby
+def article_params
+    # add `category_id: []`
+    params.require(:article).permit(:title, :body, category_id: [])
+end
+```
+
+\_form.slim
+
+```slim
+div Category
+/model that article has `(category)_ids`
+div = f.collection_check_boxes :category_ids, Category.all, :id, :name do |b|
+    div
+        span = b.check_box
+        span = b.label
 ```
 
 ## Authentication
@@ -563,4 +590,104 @@ index.slim
             td.font-weight-bold = a.title
             td = a.body
             ...
+```
+
+## Enum
+
+### add attribute to a model
+
+    rails g migration AddStatusToArticle
+
+```ruby
+class AddStatusToArticle < ActiveRecord::Migration[6.1]
+    def change
+        add_column :articles, :status, :integer, null: false, default: 0
+    end
+end
+```
+
+### define emun to model
+
+```ruby
+class Article < ApplicationRecord
+    enum status: { draft: 0, published: 1, archived: 2 }
+```
+
+note. in console
+
+```irb
+# ask is its a draft?
+a.draft?
+# ask what is its status?
+a.status
+# asign it to be a draft.
+update a.draft!
+```
+
+## CSV
+
+### Download CSV
+
+index.slim
+
+```slim
+<!-- add -->
+= link_to articles_path(format: :csv) do
+    = button_tag 'Download CSV', class: 'btn btn-secondary float-right'
+```
+
+ApplicationController.rb
+
+```ruby
+def index
+    ...
+    # add
+    respond_to do |format|
+        format.html
+        format.csv { send_data generate_csv(Article.all), file_name: 'articles.csv' }
+    end
+end
+
+...
+
+private
+
+# add
+def generate_csv(articles)
+    articles.map { |a| [a.title, a.body, a.created_at.to_date].join(',') }.join("\n")
+end
+```
+
+### Upload CSV
+
+config/routes.rb
+
+```ruby
+# add
+namespace :articles do
+    post 'csv_upload'
+end
+```
+
+index.slim
+
+```slim
+<!-- add -->
+= form_tag articles_csv_upload_path, multipart: true do
+    div = file_field_tag :csv_file
+    div = submit_tag :upload
+```
+
+ApplicationController.rb
+
+```ruby
+# add
+def csv_upload
+    data = params[:csv_file].read.split("\n")
+    data.each do |line|
+        attr = line.split(",").map(&:strip)
+        Article.create title: attr[0], body: attr[1]
+    end
+    redirect_to action: :index
+end
 ```
