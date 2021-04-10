@@ -15,6 +15,8 @@
 11. [Caching](#caching)
 12. [Enum](#enum)
 13. [CSV](#csv)
+14. [App Constant](#app-constant)
+15. [Active Storage](#active-storage)
 
 ## Basic
 
@@ -53,7 +55,7 @@ end
 
 ### generate controller
 
-    bin/rails generate controller Articles index
+    rails generate controller Articles index
 
 ## Database
 
@@ -123,7 +125,7 @@ reload!
 
 ### generate model
 
-    bin/rails generate model Article title:string body:text
+    rails generate model Article title:string body:text
 
 ```ruby
 class Article < ApplicationRecord
@@ -520,10 +522,10 @@ gem 'kaminari'
 Terminal
 
     <!-- check themes -->
-    bin/rails generate kaminari:views THEME
+    rails generate kaminari:views THEME
 
     <!-- choose theme -->
-    bin/rails generate kaminari:views bootstrap4
+    rails generate kaminari:views bootstrap4
 
 index.slim
 
@@ -690,4 +692,134 @@ def csv_upload
     end
     redirect_to action: :index
 end
+```
+
+## App Constant
+
+### create file constant.rb
+
+ประกาศ constant ใน `config/initializers/xxx.rb` จะใช้ได้ทุกที่ (controller, console, views, ...)
+
+config/initializers/contant.rb
+
+```ruby
+CONSTANT_A = 'A'
+CONSTANT_B = 'B'
+```
+
+note. everything in `/initializers` will be call on system (server) startup
+
+### create file yml
+
+config/shipping_fees.yml
+
+```yml
+bangkok:
+  silom: 100
+  sahorn: 120
+  # smyan:
+  #     - a
+  #     - b
+  #     - c
+chiangmai:
+  xxx: 700
+trang:
+  yyy: 300
+  zzz: 350
+```
+
+config/initializers/shipping_fees.rb
+
+```ruby
+SHIPPING_FEES = YAML.load_file(Rails.root.join('config/shipping_fees.yml'))
+```
+
+## Active Storage
+
+    rails active_storage:install
+    rails db:migrate
+
+config/storage.yml
+[แค่ให้ดูเฉยๆ]
+
+models/article.rb
+
+```ruby
+# add
+has_one_attached :cover_image
+# has_many_attached :images
+
+# a = Article.first
+# a.cover_image.attached? => false
+```
+
+controllers/articles_controller.rb
+
+```ruby
+def article_params
+    # add 'cover_image' before all {}
+    params.require(:article).permit(:title, :body, :cover_image, category_id: [])
+    # params.require(:article).permit(:title, :body, :cover_image, category_id: [], images: [])
+end
+```
+
+views/articles/\_form.slim
+
+```slim
+<!-- add -->
+div Cover Image
+div = f.file_field :cover_image
+```
+
+views/articles/index.slim
+
+```slim
+<!-- change -->
+td = a.id
+
+<!-- to -->
+td
+    - if a.cover_image.attached?
+        = image_tag a.cover_image, width: '64px'
+```
+
+### `ที่ทำมาจนถึงตรงนี่ใช้ได้... แต่!! จะหายไปถ้าreserver!`
+
+### solution
+
+config/storage.yml
+
+```yml
+# enable
+amazon:
+  service: S3
+  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
+  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
+  region: us-east-1
+  bucket: your_own_bucket
+```
+
+example
+
+```yml
+amazon:
+  service: S3
+  access_key_id: AKIAVERVDS3NM3H6UZVL
+  secret_access_key: J98Wu6+3kCTiJbIOaSIDd2JBCnrY79LZO16HruXW
+  region: ap-southeast-1
+  bucket: ssd-2021
+```
+
+config/environments/ `development.rb` and `production.rb`
+
+```ruby
+# change both!
+config.active_storage.service = :amazon
+```
+
+Gemfile
+
+```
+# upload file to AWS S3
+gem 'aws-sdk-s3'
 ```
