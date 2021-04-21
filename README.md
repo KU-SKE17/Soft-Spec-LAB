@@ -17,6 +17,7 @@
 13. [CSV](#csv)
 14. [App Constant](#app-constant)
 15. [Active Storage](#active-storage)
+16. [API](#api)
 
 ## Basic
 
@@ -822,4 +823,112 @@ Gemfile
 ```
 # upload file to AWS S3
 gem 'aws-sdk-s3'
+```
+
+### `แต่นี้ก้คือวิธีที่ผิดอยู่ดี วิธีที่ถูกคือ...`
+
+config/storage.yml
+
+```yml
+amazon:
+  service: S3
+  <!-- change -->
+  access_key_id: <%= ENV['AWS_ACCESS_KEY'] %>
+  secret_access_key: <%= ENV['AWS_KEY_ID'] %>
+  region: ap-southeast-1
+  bucket: ssd-2021
+```
+
+config/environments/production.rb
+
+```ruby
+# change
+config.active_storage.service = :amazon
+```
+
+in Heroku -> Setting -> Config Vars
+
+add `AWS_ACCESS_KEY` and `AWS_KEY_ID`
+
+## API
+
+### create api
+
+create api/v1/CommentsController.rb
+
+```ruby
+class Api::V1::CommentsController < ApplicationController
+  def index
+    @comments = Article.find(params[:article_id]).comments
+
+    # Not optimal, but get the job done
+    # http://0.0.0.0:3000/api/v1/articles/1003/comments
+    render json: @comments
+  end
+end
+```
+
+routes.rb
+
+```ruby
+    # add
+    namespace :api do
+        namespace :v1 do
+            resources :articles, only: [] do
+                resources :comments, only: :index
+            end
+        end
+    end
+```
+
+### use api
+
+create app/javascript/blog/comments.js
+
+```js
+(function () {
+  document.addEventListener("turbolinks:load", function () {
+    let commentButtons = document.getElementsByClassName("btn-comment");
+
+    Array.from(commentButtons).forEach(function (button) {
+      button.addEventListener("click", function () {
+        loadComments(this.getAttribute("article"));
+      });
+    });
+
+    function loadComments(articleId) {
+      let host = window.location.protocol + "//" + window.location.host;
+      // url = host + protocol + path
+      let url = host + "/api/v1/articles/" + articleId + "/comments";
+      let http = new XMLHttpRequest();
+
+      http.onreadystatechange = function () {
+        if (http.readyState == XMLHttpRequest.DONE) {
+          if (http.status == 200) {
+            let comments = JSON.parse(http.responseText);
+            let commentsView = document.getElementById("comments-" + articleId);
+            commentsView.innerHTML = "";
+
+            comments.forEach(function (comment) {
+              let commentsRow = document.createElement("div");
+              commentsRow.innerHTML = comment.author + " : " + comment.text;
+              commentsView.append(commentsRow);
+            });
+          } else {
+            console.log("The Request failed.");
+          }
+        }
+      };
+      http.open("GET", url);
+      http.send();
+    }
+  });
+})();
+```
+
+app/javascript/packs/application.js
+
+```js
+// add
+require("blog/comments");
 ```
