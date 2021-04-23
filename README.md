@@ -3,21 +3,25 @@
 ## Table of Contents
 
 1. [Basic](#basic)
-2. [Routes](#routes)
-3. [Database](#database)
-4. [Console](#console)
-5. [Model](#model)
-6. [Subclass](#subclass)
-7. [Authentication](#authentication)
-8. [Testing](#testing-and-debugging)
-9. [UI](#ui)
-10. [Function](#function)
-11. [Caching](#caching)
-12. [Enum](#enum)
-13. [CSV](#csv)
-14. [App Constant](#app-constant)
-15. [Active Storage](#active-storage)
-16. [API](#api)
+2. [Advance](#advance)
+3. [Routes](#routes)
+4. [Database](#database)
+5. [Console](#console)
+6. [Model](#model)
+7. [Subclass](#subclass)
+8. [Authentication](#authentication)
+9. [Testing](#testing-and-debugging)
+10. [UI](#ui)
+11. [Function](#function)
+12. [Caching](#caching)
+13. [Enum](#enum)
+14. [CSV](#csv)
+15. [App Constant](#app-constant)
+16. [Active Storage](#active-storage)
+17. [API](#api)
+18. [I18n](#internationalizationi18n)
+19. [Markdown](#markdown)
+20. [Custom Validator](#custom-validator)
 
 ## Basic
 
@@ -40,6 +44,35 @@
 note. rails routes -c `controller_name`
 
 note. `link` use in `slim` = `###_path` [ดูแล้วเติม_path]
+
+## Advance
+
+### Block and yield
+
+```irb
+def fun4(n)
+    puts "Start"
+    yield n
+    puts "End"
+end
+```
+
+example
+
+```irb
+[1,2,3,4].map { |e| e + 1 }
+
+def map(array)
+    output = []
+    for e in array
+        output.push(yield e)
+    end
+    output
+end
+
+map([1,2,3,4]) { |n| n+1 }
+ => [2, 3, 4, 5]
+```
 
 ## Routes
 
@@ -116,6 +149,10 @@ Article.all.map(&:save)
 
 # reload console
 reload!
+
+Article.all.each { |a| puts("Article #{a.id} has #{a.comments.length} comments")}
+# faster
+Article.includes(:comments).all.each { |a| puts("Article #{a.id} has #{a.comments.length} comments")}
 ```
 
 ### use rbenv
@@ -931,4 +968,199 @@ app/javascript/packs/application.js
 ```js
 // add
 require("blog/comments");
+```
+
+## Internationalization(I18n)
+
+config/locales/en.yml
+
+```irb
+I18n.locale
+ => :en
+I18n.t('hello')
+ => "Hello world"
+I18n.locale = :th
+ => :th
+I18n.t('hello')
+ => "สวัดดี"
+```
+
+### way1
+
+http://th.youwebsite.com
+
+http://en.youwebsite.com
+
+### way2
+
+http://youwebsite.com?locale=th
+
+http://youwebsite.com?locale=en
+
+ApplicationController.rb
+
+```rb
+class ApplicationController < ActionController::Base
+    # add
+    around_action :set_locale
+    def set_locale(&action)
+        locale = params[:locale] || I18n.default_locale
+        I18n.with_locale(locale, &action)
+    end
+end
+```
+
+index.slim
+
+```slim
+<!-- change -->
+th Title
+<!-- to -->
+th = t('title')
+```
+
+config/locales/en.yml
+
+```yml
+en:
+    ...
+    # add
+    title: "Title"
+```
+
+config/locales/th.yml
+
+```yml
+th:
+    ...
+    # add
+    title: "หัวข้อ"
+```
+
+### `better way!`
+
+config/application.rb
+
+```rb
+module Blog
+  class Application < Rails::Application
+    # ...
+    # add
+    config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}')]
+```
+
+viwe.slim
+
+```slim
+<!-- change -->
+th = t('title')
+<!-- to -->
+th = t('admins.articles.index.title')
+<!-- or -->
+th = t('.title')
+```
+
+config/locales/views/admins/articles/index/en.yml
+
+```yml
+en:
+  admins:
+    articles:
+      index:
+        title: "Test Title"
+```
+
+config/locales/views/admins/articles/index/th.yml
+
+```yml
+th:
+  admins:
+    articles:
+      index:
+        title: "ทดสอบหัวข้อ"
+```
+
+index.slim
+
+```slim
+<!-- add lang switch -->
+span.ml-3 = link_to 'EN', admins_articles_path(locale: :en)
+span.ml-3 = link_to 'TH', admins_articles_path(locale: :th)
+
+<!-- link_to another page with same lang -->
+= link_to new_admins_article_path(locale: I18n.locale) do
+    = button_tag t('.add_article'), class: 'btn btn-primary'
+```
+
+### way3
+
+http://youwebsite.com/th/xxx
+
+http://youwebsite.com/en/xxx
+
+## Markdown
+
+GemFile
+
+```
+# Markdown format
+gem 'redcarpet'
+```
+
+index.slim
+
+```slim
+<!-- add -->
+ruby:
+    markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true)
+
+<!-- change -->
+td = a.body
+<!-- to -->
+td = raw markdown.render(a.body)
+```
+
+form.slim
+
+```slim
+<!-- add -->
+link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css"
+script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"
+
+javascript:
+    document.addEventListener("turbolinks:load", function () {
+        if (document.getElementsByClassName('editor-toolbar').length === 0) {
+            var editor = new SimpleMDE({element: document.getElementById('article_body')})
+        }
+    })
+```
+
+## Custom Validator
+
+article.rb
+
+```rb
+# change from
+validate :no_bad_words_in_title
+def no_bad_words_in_title
+    if title.downcase.include?('bad')
+        errors.add(:title, 'cannot contain bad words')
+    end
+end
+# to
+# note. shorter and validates attributes
+validates :title, :body, polite: true
+```
+
+create app/models/concerns/polite_validator.rb
+
+```rb
+class PoliteValidator < ActiveModel::EachValidator
+
+    def validate_each(object, attribute, value)
+        if value.to_s.downcase.include?('bad')
+            object.errors.add(attribute, 'cannot contain bad words')
+        end
+    end
+end
 ```
