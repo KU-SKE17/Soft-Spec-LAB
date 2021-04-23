@@ -50,11 +50,66 @@ note. `link` use in `slim` = `###_path` [ดูแล้วเติม_path]
 ### Block and yield
 
 ```irb
-def fun4(n)
+def func1
+    puts "This is a block"
+end
+
+> func1
+This is a block
+
+# block {} -> oneline
+> func1 { |e| e + 1 }
+This is a block
+
+# block do-end -> multiple lines
+> func1 do |e| e + 1 end
+This is a block
+```
+
+```irb
+def func2
+    puts "Start"
+    yield
+    puts "End"
+end
+
+> func2 { puts "This is a block" }
+Start
+This is a block
+End
+
+> func2 do
+>   puts "This is block 1"
+>   puts "This is block 2"
+> end
+Start
+This is block 1
+This is block 2
+End
+```
+
+```irb
+def func3
+    # จดไม่ทัน ถถถ
+end
+```
+
+```irb
+def func4(n)
     puts "Start"
     yield n
     puts "End"
 end
+
+> func4(17) { |e| puts e * 2}
+Start
+34
+End
+
+> func4(9) { |e| puts e * 2}
+Start
+18
+End
 ```
 
 example
@@ -71,7 +126,7 @@ def map(array)
 end
 
 map([1,2,3,4]) { |n| n+1 }
- => [2, 3, 4, 5]
+=> [2, 3, 4, 5]
 ```
 
 ## Routes
