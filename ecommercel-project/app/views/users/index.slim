@@ -1,0 +1,43 @@
+.row
+    .col-4
+        h1 User
+    .col-8
+        .float-right
+            span = link_to edit_user_registration_path(current_user)
+                = button_tag "#{current_user.username}", class: 'btn'
+            span = link_to destroy_user_session_path, method: :delete, data: { confirm: "Wanna logout?" }, class: 'btn' do
+                = button_tag 'Logout', class: 'btn btn-danger'
+            span.dropdown
+                button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button"
+                .dropdown-menu aria-labelledby="dropdownMenuButton"
+                    a.dropdown-item href="/admin/items"  Item
+                    a.dropdown-item href="/admin/categories"  Category
+                    a.dropdown-item href="/admin/orders"  Order
+
+.row
+    .col
+        = form_tag users_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th Role
+                    th Username
+                    th Email
+                    th Action
+            tbody
+                - @users.each do |a|
+                    tr.hoverable-row
+                        td onclick="window.location='/admin/users/switch_role/#{a.id}';" = a.role
+                        td.font-weight-bold = a.username
+                        td = a.email
+                        td
+                            span
+                                = link_to "users/delete/#{a.id}", method: :delete, data: { confirm: "Are you sure?" } do
+                                    i.fas.fa-trash
+
+.row
+    .col-6
+        = paginate @users

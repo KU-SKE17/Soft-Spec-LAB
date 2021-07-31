@@ -1,0 +1,29 @@
+.row
+    .col
+        .span.float-right
+            = link_to 'Go to admin section', admins_articles_path
+
+h1 Welcome to our Blog
+
+- @articles.each do |article|
+    .row.mt-2
+        .col
+            .card
+                .card-body
+                    .row
+                        .col-3
+                            - if article.cover_image.attached?
+                                = image_tag article.cover_image, width: '100%'
+                        .col-9
+                            .row
+                                .col
+                                    = article.title
+                            .row
+                                .col
+                                    = article.body
+                            .row.mt-3
+                                .col
+                                    = button_tag 'Load Comments', class: 'btn btn-secondary btn-comment', article: article.id
+                            .row.mt-1
+                                .col
+                                    div id="comments-#{article.id}"

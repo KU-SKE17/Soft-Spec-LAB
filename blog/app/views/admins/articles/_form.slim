@@ -1,0 +1,31 @@
+= form_with model: [:admins, article] do |f|
+    div Cover Image
+    div = f.file_field :cover_image
+    br
+    div Title
+    div = f.text_field :title, placeholder: 'Title'
+    br
+    div Body
+    div = f.text_area :body, placeholder: 'Write content here'
+    br
+    div Images
+    div = f.file_field :images, multiple: true
+    br
+    div Category
+    /model that article has `(category)_ids`
+    div = f.collection_check_boxes :category_ids, Category.all, :id, :name do |b|
+        div
+            span = b.check_box
+            span = b.label
+    br
+    div = f.submit 'Submit Article'
+
+link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css"
+script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"
+
+javascript:
+    document.addEventListener("turbolinks:load", function () {
+        if (document.getElementsByClassName('editor-toolbar').length === 0) {
+            var editor = new SimpleMDE({element: document.getElementById('article_body')})
+        }
+    })

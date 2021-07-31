@@ -1,0 +1,74 @@
+ruby:
+    markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true)
+
+.row
+    .col-6
+        h1 This is articles list
+    .col-6
+        .float-right
+            span = current_admin.email
+            span.ml-3 = "#{current_admin.firstname} #{current_admin.lastname}"
+
+            span.ml-3 = link_to 'EN', admins_articles_path(locale: :en)
+            span.ml-3 = link_to 'TH', admins_articles_path(locale: :th)
+
+            span.ml-3 = link_to 'Logout', destroy_admin_session_path, method: :delete
+
+.row
+    .col-10
+        = form_tag admins_articles_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+    .col-2
+        = link_to admins_articles_path(format: :csv) do
+            = button_tag t('.download_csv'), class: 'btn btn-secondary float-right'
+
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th = t('.cover')
+                    th = t('.status')
+                    th = t('.title')
+                    th = t('.body')
+                    th = t('.category')
+                    th = t('.comments_no')
+                    th = t('.created_at')
+                    th = t('.updated_at')
+                    th = t('.action')
+            tbody
+                - @articles.each do |a|
+                    tr.hoverable-row
+                        td
+                            - if a.cover_image.attached?
+                                = image_tag a.cover_image, width: '64px'
+                        td = a.status
+                        td.font-weight-bold = a.title.first(15)
+                        td = raw markdown.render(a.body)
+                        td = a.categories.map(&:name)&.join(', ').presence || 'NA'
+                        td = a.comments.count
+                        td.font-weight-light = "#{time_ago_in_words(a.created_at)}#{t('.ago')}"
+                        td.font-weight-light = "#{time_ago_in_words(a.updated_at)}#{t('.ago')}"
+                        td
+                            span
+                                = link_to admins_article_path(a) do
+                                    i.fas.fa-eye
+                            span.ml-3
+                                = link_to edit_admins_article_path(a) do
+                                    i.fas.fa-pen
+                            span.ml-3
+                                = link_to admins_article_path(a), method: :delete, data: { confirm: "Are you sure?" } do
+                                    i.fas.fa-trash
+
+.row
+    .col-4
+        = paginate @articles
+    .col-4
+        = link_to new_admins_article_path(locale: I18n.locale) do
+            = button_tag t('.add_article'), class: 'btn btn-primary'
+    .col-4
+        .float-right
+            = form_tag admins_articles_csv_upload_path, multipart: true do
+                / div = file_field_tag 'Add CSV file', csv_file, class: 'btn btn-secondary'
+                div = file_field_tag :csv_file
+                div = submit_tag :upload

@@ -1,0 +1,15 @@
+= form_with model: @order do |f|
+    div = f.label :item_id, "Item ID:"
+    div = f.number_field :item_id, value: @order.item_id || "#{params[:item_id]}", readonly: true
+    br
+    div = f.label :user_id, "User ID:"
+    div = f.number_field :user_id, value: @order.user_id || current_user.id, readonly: true
+    br
+    div = f.label :amount, "Amuont:"
+    div = f.number_field :amount
+    br
+    div = f.label :note, "Note:"
+    div = f.text_field :note
+    br
+    div = f.submit 'Submit Order'
+    br

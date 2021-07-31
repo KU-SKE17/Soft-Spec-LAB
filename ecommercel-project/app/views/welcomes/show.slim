@@ -1,0 +1,44 @@
+.row.mt-3
+    .col
+        - if @item.primary_image.attached?
+            = image_tag @item.primary_image, width: '100%'
+    .col
+        .row.mt-3
+            .col
+                h1 = @item.title
+            .col
+                = link_to new_order_path( :item_id => @item.id )
+                    button.btn.float-right.btn-success Buy Now
+        hr
+        h5 Description
+        div style='word-wrap: break-word;' = @item.description
+        hr
+        .row
+            .col
+                h5 Stock
+                div = @item.stock
+            .col
+                h5 Price
+                div = @item.price
+hr
+
+div.mb-3
+    - if @item.supporting_images.attached?
+        h5 Images
+        - @item.supporting_images.each do |image|
+            = image_tag image, width: '180px', height: '110px', objectFit: 'cover', style: "vertical-align:middle; margin:2px 2px"
+
+.row
+    .col-10
+        h5 Comments
+    .col-2
+        button#add-comment-btn.btn.btn-secondary.float-left Add Comment
+div
+    - @item.comments.each do |comment|
+        div = "#{comment.author} : #{comment.text}"
+
+javascript:
+    addCommentBtn = document.getElementById("add-comment-btn");
+    addCommentBtn.onclick =  function () {
+        alert("You need to login before add a comment")
+    }

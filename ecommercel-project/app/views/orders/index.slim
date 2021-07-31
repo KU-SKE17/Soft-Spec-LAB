@@ -1,0 +1,67 @@
+.row
+    .col-4
+        h1 Order
+    .col-8
+        .float-right
+            span = link_to edit_user_registration_path(current_user)
+                = button_tag "#{current_user.username}", class: 'btn'
+            span = link_to destroy_user_session_path, method: :delete, data: { confirm: "Wanna logout?" }, class: 'btn' do
+                = button_tag 'Logout', class: 'btn btn-danger'
+            span.dropdown
+                button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button"
+                .dropdown-menu aria-labelledby="dropdownMenuButton"
+                    a.dropdown-item href="/admin/items"  Item
+                    a.dropdown-item href="/admin/categories"  Category
+                    a.dropdown-item href="/admin/users"  User
+
+.row
+    .col
+        = form_tag orders_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th Status
+                    th Item
+                    th Buyer
+                    th Amount
+                    th Note
+                    th Action
+            tbody
+                - @orders.each do |a|
+                    tr.hoverable-row
+                        td = a.status
+                        td
+                            p
+                                - if a.item
+                                    = a.item.title
+                                - else
+                                    = "DELETED"
+                        td
+                            p
+                                - if a.user
+                                    = a.user.username
+                                - else
+                                    = "DELETED"
+                        td = a.amount
+                        td = a.note
+                        td
+                            span
+                                - if a.item && a.user
+                                    = link_to edit_order_path(a) do
+                                        i.fas.fa-pen
+                            span.ml-3
+                                = link_to order_path(a), method: :delete, data: { confirm: "Are you sure?" } do
+                                    i.fas.fa-trash
+
+
+.row
+    .col-6
+        = paginate @orders
+    / .col-6
+    /     .float-right
+    /         = link_to new_order_path do
+    /             = button_tag 'Add new Order', class: 'btn btn-primary'

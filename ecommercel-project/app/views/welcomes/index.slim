@@ -1,0 +1,39 @@
+.row
+    .col-6
+        h1 Welcome to ...
+    .col-6
+        .float-right
+            span
+                = link_to items_path do
+                    = button_tag 'login', class: 'btn btn-primary'
+
+.row
+    .col
+        = form_tag root_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+
+- @items.in_groups_of(3).each do |item_of_three|
+    .row.mt-2
+        - item_of_three.each do |item|
+            - if item != nil
+                .col-4
+                    .card.hoverable-row onclick="window.location='welcomes/#{item.id}';"
+                        .card-body
+                            .row
+                                .col-6
+                                    - if item.primary_image.attached?
+                                        = image_tag item.primary_image, width: '100%'
+                                .col-6
+                                    .row
+                                        .col.font-weight-bold
+                                            = item.title
+                                    .row
+                                        .col
+                                            = item.price
+                                    .row
+                                        .col
+                                            = item.description.truncate(18, separator: ' ')
+
+.row
+    .col-6
+        = paginate @items

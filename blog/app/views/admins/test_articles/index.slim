@@ -1,0 +1,29 @@
+.row
+    .col-6
+        h1 This is test_articles
+.row
+    .col
+        = form_tag admins_articles_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+
+.row.mt-2
+    .col
+        table.table.table-bordered
+            thead.thead-dark
+                tr
+                    th ID
+                    th Title
+                    th Body
+                    th No. Comments
+                    th Created at
+                    th Updated at
+            tbody
+                - @articles.each do |a|
+                    - cache a do
+                        tr.hoverable-row
+                            td = a.id
+                            td.font-weight-bold = a.title
+                            td = a.body
+                            td = a.comments.count
+                            td.font-weight-light = "#{time_ago_in_words(a.created_at)} ago"
+                            td.font-weight-light = "#{time_ago_in_words(a.updated_at)} ago"

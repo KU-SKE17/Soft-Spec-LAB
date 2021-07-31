@@ -1,0 +1,116 @@
+.row
+    .col-4
+        h1 Item
+    .col-8
+        .float-right
+            span = link_to edit_user_registration_path(current_user)
+                = button_tag "#{current_user.username}", class: 'btn'
+            span = link_to destroy_user_session_path, method: :delete, data: { confirm: "Wanna logout?" }, class: 'btn' do
+                = button_tag 'Logout', class: 'btn btn-danger'
+            span.dropdown
+                button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button"
+                .dropdown-menu aria-labelledby="dropdownMenuButton"
+                    a.dropdown-item href="/admin/categories"  Category
+                    a.dropdown-item href="/admin/orders"  Order
+                    a.dropdown-item href="/admin/users"  User
+
+.row
+    .col-9
+        = form_tag items_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+    .col-3
+        .row
+            .col-6
+                = link_to items_path(format: :csv) do
+                    = button_tag 'Download CSV', class: 'btn btn-secondary float-right'
+            .col-6
+                #myBtn.btn.btn-secondary.float-left Upload CSV
+                #myModal.modal
+                    .modal-content style="text-align:center"
+                        span.close &times
+                        = form_tag items_csv_upload_path, multipart: true do
+                            .row
+                                .col-6.float-right
+                                    div = file_field_tag :csv_file
+                                .col-6.float-left
+                                    div = submit_tag :upload
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th Status
+                    th Cover
+                    th Title
+                    th Description
+                    th Images
+                    th Stock
+                    th Price
+                    th Category
+                    th Action
+            tbody
+                - @items.each do |a|
+                    tr.hoverable-row
+                        td = a.status
+                        td style="text-align: center"
+                            .row
+                                - if a.primary_image.attached?
+                                    .col
+                                        = image_tag a.primary_image, width: '64px', height: '48px', objectFit: 'cover'
+                                    .col
+                                        span
+                                            = link_to "/admin/items/del_main_image/#{a.id}", method: :delete, data: { confirm: "Are you sure?" } do
+                                                i.fas.fa-trash
+                        td.font-weight-bold = a.title
+                        td = a.description.truncate(40, separator: ' ')
+                        td style="text-align: center"
+                            .row
+                                - if a.supporting_images.attached?
+                                    .col-9
+                                        - a.supporting_images.each do |image|
+                                            = image_tag image, width: '32px', height: '24px', objectFit: 'cover'
+                                    .col-3
+                                        span
+                                            = link_to "/admin/items/del_support_images/#{a.id}", method: :delete, data: { confirm: "Are you sure?" } do
+                                                i.fas.fa-trash
+                        td = a.stock
+                        td = a.price
+                        td = a.categories.map(&:name)&.join(', ').presence || 'NA'
+                        td
+                            span
+                                = link_to item_path(a) do
+                                    i.fas.fa-eye
+                            span.ml-3
+                                = link_to edit_item_path(a) do
+                                    i.fas.fa-pen
+                            span.ml-3
+                                = link_to item_path(a), method: :delete, data: { confirm: "Are you sure?" } do
+                                    i.fas.fa-trash
+
+
+.row
+    .col-6
+        = paginate @items
+    .col-6
+        .float-right
+            = link_to new_item_path do
+                = button_tag 'Add new Item', class: 'btn btn-primary'
+
+javascript:
+    modal = document.getElementById("myModal");
+    btn = document.getElementById("myBtn");
+    span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function() {
+    modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+    modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+        }
+    }

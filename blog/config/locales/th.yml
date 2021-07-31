@@ -1,0 +1,6 @@
+th:
+  datetime:
+    distance_in_words:
+      less_than_x_minutes: "น้อยกว่า%{count} นาที"
+      x_minutes: "%{count} นาที"
+      x_days: "%{count} วัน"

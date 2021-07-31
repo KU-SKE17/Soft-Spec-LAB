@@ -1,0 +1,50 @@
+.row
+    .col-4
+        h1 Category
+    .col-8
+        .float-right
+            span = link_to edit_user_registration_path(current_user)
+                = button_tag "#{current_user.username}", class: 'btn'
+            span = link_to destroy_user_session_path, method: :delete, data: { confirm: "Wanna logout?" }, class: 'btn' do
+                = button_tag 'Logout', class: 'btn btn-danger'
+            span.dropdown
+                button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" type="button"
+                .dropdown-menu aria-labelledby="dropdownMenuButton"
+                    a.dropdown-item href="/admin/items"  Item
+                    a.dropdown-item href="/admin/orders"  Order
+                    a.dropdown-item href="/admin/users"  User
+
+.row
+    .col
+        = form_tag categories_path, method: :get do
+            = text_field_tag 'search', @search, placeholder: 'Type something', class: 'form-control'
+
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th Category
+                    th Action
+            tbody
+                - @categories.each do |a|
+                    tr.hoverable-row
+                        td.font-weight-bold = a.name
+                        td
+                            span
+                                = link_to category_path(a) do
+                                    i.fas.fa-eye
+                            span.ml-3
+                                = link_to edit_category_path(a) do
+                                    i.fas.fa-pen
+                            span.ml-3
+                                = link_to category_path(a), method: :delete, data: { confirm: "Are you sure?" } do
+                                    i.fas.fa-trash
+
+.row
+    .col-6
+        = paginate @categories
+    .col-6
+        .float-right
+            = link_to new_category_path do
+                = button_tag 'Add new Category', class: 'btn btn-primary'

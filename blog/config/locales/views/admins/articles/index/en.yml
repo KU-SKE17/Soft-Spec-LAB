@@ -1,0 +1,16 @@
+en:
+  admins:
+    articles:
+      index:
+        title: "Articles Dashboard"
+        cover: "Cover"
+        status: "Status"
+        body: "Body"
+        category: "Category"
+        comments_no: "No. Comments"
+        created_at: "Created at"
+        updated_at: "Updated at"
+        action: "Action"
+        download_csv: "Download CSV"
+        add_article: "Add new Article"
+        ago: "ago"

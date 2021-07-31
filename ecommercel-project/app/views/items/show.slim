@@ -1,0 +1,70 @@
+.row.mt-3
+    .col
+        - if @item.primary_image.attached?
+            = image_tag @item.primary_image, width: '100%'
+    .col
+        .row.mt-3
+            .col
+                h1 = @item.title
+            .col
+                = link_to new_order_path( :item_id => @item.id )
+                    button.btn.float-right.btn-success Buy Now
+        hr
+        h5 Description
+        div style='word-wrap: break-word;' = @item.description
+        hr
+        .row
+            .col
+                h5 Stock
+                div = @item.stock
+            .col
+                h5 Price
+                div = @item.price
+hr
+
+div.mb-3
+    - if @item.supporting_images.attached?
+        h5 Images
+        - @item.supporting_images.each do |image|
+            = image_tag image, width: '180px', height: '110px', objectFit: 'cover', style: "vertical-align:middle; margin:2px 2px"
+
+.row
+    .col-10
+        h5 Comments
+    .col-2
+        #myBtn.btn.btn-secondary.float-left Add Comment
+        #myModal.modal
+            .modal-content style="text-align:center"
+                span.close &times
+                = form_with model: @item.comments.build do |f|
+                    div style="display: none;" = f.number_field :item_id, value: @item.id, readonly: true
+                    div style="display: none;" = f.number_field :user_id, value: current_user.id, readonly: true
+                    div = f.label :author, "Author"
+                    div = f.text_field :author, value: current_user.username, readonly: true
+                    br
+                    div = f.label :text, "Comment"
+                    div = f.text_area :text, placeholder: 'Write comment here'
+                    br
+                    div = f.submit 'Submit Comment'
+div
+    - @item.comments.each do |comment|
+        div = "#{comment.author} : #{comment.text}"
+
+javascript:
+    modal = document.getElementById("myModal");
+    btn = document.getElementById("myBtn");
+    span = document.getElementsByClassName("close")[0];
+
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }

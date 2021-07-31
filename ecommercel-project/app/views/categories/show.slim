@@ -1,0 +1,19 @@
+h1 = @category.name
+div = link_to 'Back', categories_path
+hr
+.row.mt-2
+    .col
+        table.table.table-bordered.table-striped
+            thead.thead-dark
+                tr
+                    th Item
+                    th Description
+                    th Stock
+                    th Price
+            tbody
+                - @category.items.each do |a|
+                    tr.hoverable-row
+                        td.font-weight-bold = a.title
+                        td = a.description
+                        td = a.stock
+                        td = a.price

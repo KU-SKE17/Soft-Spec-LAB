@@ -1,0 +1,38 @@
+= form_with model: @item do |f|
+    div = f.label :status, "Status:"
+    div = f.select :status, Item.statuses.map { |key, value| [key.humanize, key] }
+    br
+    div = f.label :primary_image, "Primary image:"
+    div = f.file_field :primary_image
+    br
+    - if @item.primary_image.attached?
+        = image_tag @item.primary_image, width: '400px'
+    div = f.label :title, "Title:"
+    div = f.text_field :title, placeholder: 'Title'
+    br
+    div = f.label :description, "Description:"
+    div = f.text_area :description, placeholder: 'Write content here'
+    br
+    div = f.label :supporting_images, "Supporting images:"
+    div = f.file_field :supporting_images, multiple: true
+    br
+    - if @item.supporting_images.attached?
+        - @item.supporting_images.each do |image|
+            = image_tag image, width: '200px', height: '120px', objectFit: 'cover'
+    div = f.label :stock, "Stock:"
+    div = f.number_field :stock
+    br
+    div = f.label :price, "Price:"
+    div = f.number_field :price
+    br
+    div = f.label :tags, "Tags:"
+    div = f.text_field :tags
+    br
+    div = f.label :category_ids, "Category:"
+    div = f.collection_check_boxes :category_ids, Category.all, :id, :name do |c|
+        div
+            span = c.check_box
+            span = c.label
+    br
+    div = f.submit 'Submit Item'
+    br

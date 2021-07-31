@@ -1,0 +1,16 @@
+th:
+  admins:
+    articles:
+      index:
+        title: "บอร์ดข้อความ"
+        cover: "รูปปก"
+        status: "สถานะ"
+        body: "เนื้อหา"
+        category: "หมวดหมู่"
+        comments_no: "ความเห็น"
+        created_at: "วันที่สร้าง"
+        updated_at: "วันที่แก้ไขล่าสุด"
+        action: "Action"
+        download_csv: "โหลด CSV"
+        add_article: "เพิ่มบทความใหม่"
+        ago: "ที่แล้ว"
