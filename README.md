@@ -41,6 +41,10 @@
 
     rails routes
 
+### create database (create schema.rb)
+
+    rails db:migrate
+
 note. rails routes -c `controller_name`
 
 note. `link` use in `slim` = `###_path` [ดูแล้วเติม_path]
@@ -151,10 +155,6 @@ end
 ### create file for database name ‘…\_create_article’
 
     rails g migration CreateArticle
-
-### create database (create schema.rb)
-
-    rails db:migrate
 
 in app/models
 
@@ -375,9 +375,14 @@ div = f.collection_check_boxes :category_ids, Category.all, :id, :name do |b|
 
     rails generate devise:install
 
-### generate Admin
+### generate/destroy Admin
 
     rails generate devise Admin
+
+### generate/destroy devise
+
+    rails generate devise:views
+    rails generate devise:controllers users
 
 ### use Admin
 
